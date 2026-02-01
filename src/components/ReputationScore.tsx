@@ -30,22 +30,22 @@ function useReputationScore() {
 }
 
 function getScoreColor(score: number): string {
-  if (score >= 90) return "text-green-400";
-  if (score >= 75) return "text-blue-400";
-  if (score >= 60) return "text-yellow-400";
+  if (score >= 90) return "text-treasure-gold";
+  if (score >= 75) return "text-treasure-magenta";
+  if (score >= 60) return "text-amber-400";
   return "text-orange-400";
 }
 
 function getLevelBadge(level: string): { bg: string; text: string } {
   switch (level) {
     case "Elite":
-      return { bg: "bg-green-900/50 border-green-700", text: "text-green-400" };
+      return { bg: "bg-treasure-gold/20 border-treasure-gold/50", text: "text-treasure-gold" };
     case "Trusted":
-      return { bg: "bg-blue-900/50 border-blue-700", text: "text-blue-400" };
+      return { bg: "bg-treasure-magenta/20 border-treasure-magenta/50", text: "text-treasure-magenta" };
     case "Verified":
-      return { bg: "bg-yellow-900/50 border-yellow-700", text: "text-yellow-400" };
+      return { bg: "bg-amber-500/20 border-amber-500/50", text: "text-amber-400" };
     default:
-      return { bg: "bg-gray-900/50 border-gray-700", text: "text-gray-400" };
+      return { bg: "bg-magic-800/50 border-magic-700", text: "text-magic-400" };
   }
 }
 
@@ -56,22 +56,26 @@ export function ReputationScore() {
 
   if (!isConnected) {
     return (
-      <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-        <h3 className="text-lg font-bold mb-4">Reputation Score</h3>
-        <p className="text-gray-400 text-sm">Connect wallet to view reputation</p>
+      <div className="bg-gradient-to-br from-treasure-midnight/80 to-treasure-navy/90 rounded-xl p-6 border border-magic-800/30 glow-magic">
+        <h3 className="text-lg font-bold mb-4 text-treasure-gold flex items-center gap-2">
+          <span>⭐</span> Reputation Score
+        </h3>
+        <p className="text-magic-400 text-sm">Connect wallet to view reputation</p>
       </div>
     );
   }
 
   if (!metrics) {
     return (
-      <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-        <h3 className="text-lg font-bold mb-4">Reputation Score</h3>
+      <div className="bg-gradient-to-br from-treasure-midnight/80 to-treasure-navy/90 rounded-xl p-6 border border-magic-800/30 glow-magic">
+        <h3 className="text-lg font-bold mb-4 text-treasure-gold flex items-center gap-2">
+          <span>⭐</span> Reputation Score
+        </h3>
         <div className="text-center py-4">
-          <p className="text-gray-400 text-sm mb-3">No reputation yet</p>
+          <p className="text-magic-400 text-sm mb-3">No reputation yet</p>
           <a 
             href="/register" 
-            className="text-violet-400 hover:text-violet-300 text-sm underline"
+            className="text-treasure-gold hover:text-amber-400 text-sm underline"
           >
             Register as ERC-8004 agent →
           </a>
@@ -81,11 +85,13 @@ export function ReputationScore() {
   }
 
   return (
-    <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+    <div className="bg-gradient-to-br from-treasure-midnight/80 to-treasure-navy/90 rounded-xl p-6 border border-magic-800/30 glow-magic">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold">Reputation Score</h3>
+        <h3 className="text-lg font-bold text-treasure-gold flex items-center gap-2">
+          <span>⭐</span> Reputation Score
+        </h3>
         <div className={`px-2 py-1 rounded border text-xs font-medium ${badge.bg} ${badge.text}`}>
-          {level}
+          ✨ {level}
         </div>
       </div>
 
@@ -94,7 +100,7 @@ export function ReputationScore() {
         <div className={`text-5xl font-bold ${getScoreColor(score)}`}>
           {score}
         </div>
-        <div className="text-gray-500 text-sm mt-1">out of 100</div>
+        <div className="text-magic-500 text-sm mt-1">out of 100</div>
       </div>
 
       {/* Score Ring Visual */}
@@ -108,19 +114,25 @@ export function ReputationScore() {
               stroke="currentColor"
               strokeWidth="8"
               fill="none"
-              className="text-gray-800"
+              className="text-treasure-navy"
             />
             <circle
               cx="64"
               cy="64"
               r="56"
-              stroke="currentColor"
+              stroke="url(#scoreGradient)"
               strokeWidth="8"
               fill="none"
               strokeDasharray={`${(score / 100) * 352} 352`}
-              className={getScoreColor(score)}
               strokeLinecap="round"
             />
+            <defs>
+              <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#F59E0B" />
+                <stop offset="50%" stopColor="#DC2626" />
+                <stop offset="100%" stopColor="#C026D3" />
+              </linearGradient>
+            </defs>
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="text-2xl">🤖</span>
@@ -130,16 +142,16 @@ export function ReputationScore() {
 
       {/* Metric Breakdown */}
       <div className="space-y-3">
-        <div className="text-xs text-gray-500 uppercase tracking-wide mb-2">Metrics</div>
+        <div className="text-xs text-magic-500 uppercase tracking-wide mb-2">Metrics</div>
         
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Transaction History</span>
-            <span className="font-mono">{metrics.transactionHistory}</span>
+            <span className="text-magic-400">Transaction History</span>
+            <span className="font-mono text-magic-200">{metrics.transactionHistory}</span>
           </div>
-          <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-treasure-navy rounded-full overflow-hidden">
             <div 
-              className="h-full bg-violet-500 rounded-full" 
+              className="h-full bg-gradient-to-r from-treasure-magenta to-magic-500 rounded-full" 
               style={{ width: `${metrics.transactionHistory}%` }}
             />
           </div>
@@ -147,12 +159,12 @@ export function ReputationScore() {
 
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">On-Time Repayments</span>
-            <span className="font-mono">{metrics.onTimeRepayments}</span>
+            <span className="text-magic-400">On-Time Repayments</span>
+            <span className="font-mono text-magic-200">{metrics.onTimeRepayments}</span>
           </div>
-          <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-treasure-navy rounded-full overflow-hidden">
             <div 
-              className="h-full bg-green-500 rounded-full" 
+              className="h-full bg-gradient-to-r from-treasure-gold to-amber-400 rounded-full" 
               style={{ width: `${metrics.onTimeRepayments}%` }}
             />
           </div>
@@ -160,12 +172,12 @@ export function ReputationScore() {
 
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Collateral Ratio</span>
-            <span className="font-mono">{metrics.collateralRatio}</span>
+            <span className="text-magic-400">Collateral Ratio</span>
+            <span className="font-mono text-magic-200">{metrics.collateralRatio}</span>
           </div>
-          <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-treasure-navy rounded-full overflow-hidden">
             <div 
-              className="h-full bg-blue-500 rounded-full" 
+              className="h-full bg-gradient-to-r from-treasure-ruby to-treasure-magenta rounded-full" 
               style={{ width: `${metrics.collateralRatio}%` }}
             />
           </div>
@@ -173,12 +185,12 @@ export function ReputationScore() {
 
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Account Age</span>
-            <span className="font-mono">{metrics.accountAge}</span>
+            <span className="text-magic-400">Account Age</span>
+            <span className="font-mono text-magic-200">{metrics.accountAge}</span>
           </div>
-          <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-treasure-navy rounded-full overflow-hidden">
             <div 
-              className="h-full bg-orange-500 rounded-full" 
+              className="h-full bg-gradient-to-r from-amber-500 to-treasure-gold rounded-full" 
               style={{ width: `${metrics.accountAge}%` }}
             />
           </div>

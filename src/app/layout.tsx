@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 
-const inter = Inter({ subsets: ["latin"] });
+const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Halo Finance | DeFi Lending for AI Agents",
-  description: "Supply, borrow, and earn with ERC-8004 verified agents on Base",
+  description: "Supply, borrow, and earn with ERC-8004 verified agents on Base. Powered by MAGIC ✨",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
@@ -17,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.className} bg-black text-white min-h-screen`}>
+      <body className={`${spaceGrotesk.className} min-h-screen relative`}>
         <Providers>{children}</Providers>
       </body>
     </html>

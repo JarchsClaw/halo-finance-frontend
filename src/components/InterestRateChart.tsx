@@ -54,18 +54,20 @@ export function InterestRateChart() {
   const borrowPath = borrowData.map((d, i) => `${i === 0 ? 'M' : 'L'} ${toX(i)} ${toY(d.rate)}`).join(' ');
 
   return (
-    <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+    <div className="bg-gradient-to-br from-treasure-midnight/80 to-treasure-navy/90 rounded-xl p-6 border border-magic-800/30 glow-magic">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold">Interest Rates</h3>
+        <h3 className="text-lg font-bold text-treasure-gold flex items-center gap-2">
+          <span>📈</span> Interest Rates
+        </h3>
         <div className="flex gap-1">
           {(["7d", "30d", "90d"] as TimeRange[]).map((range) => (
             <button
               key={range}
               onClick={() => setTimeRange(range)}
-              className={`px-2 py-1 text-xs rounded ${
+              className={`px-2 py-1 text-xs rounded transition ${
                 timeRange === range
-                  ? "bg-violet-600 text-white"
-                  : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                  ? "bg-gradient-to-r from-treasure-ruby to-treasure-magenta text-white"
+                  : "bg-treasure-navy/60 text-magic-400 hover:bg-treasure-navy/80 border border-magic-800/30"
               }`}
             >
               {range}
@@ -76,21 +78,21 @@ export function InterestRateChart() {
 
       {/* Current Rates */}
       <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className="bg-gray-800/50 rounded-lg p-3">
+        <div className="bg-treasure-navy/60 rounded-lg p-3 border border-treasure-gold/20">
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-            <span className="text-xs text-gray-400">Supply APY</span>
+            <div className="w-2 h-2 bg-treasure-gold rounded-full"></div>
+            <span className="text-xs text-magic-400">Supply APY</span>
           </div>
-          <div className="text-xl font-bold text-green-400">
+          <div className="text-xl font-bold text-treasure-gold">
             {hoveredPoint?.supply ?? currentSupplyAPY}%
           </div>
         </div>
-        <div className="bg-gray-800/50 rounded-lg p-3">
+        <div className="bg-treasure-navy/60 rounded-lg p-3 border border-treasure-ruby/20">
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-            <span className="text-xs text-gray-400">Borrow APY</span>
+            <div className="w-2 h-2 bg-treasure-ruby rounded-full"></div>
+            <span className="text-xs text-magic-400">Borrow APY</span>
           </div>
-          <div className="text-xl font-bold text-orange-400">
+          <div className="text-xl font-bold text-treasure-ruby">
             {hoveredPoint?.borrow ?? currentBorrowAPY}%
           </div>
         </div>
@@ -114,7 +116,7 @@ export function InterestRateChart() {
               y1={chartHeight * pct}
               x2={chartWidth}
               y2={chartHeight * pct}
-              stroke="#374151"
+              stroke="#312E81"
               strokeWidth="0.2"
             />
           ))}
@@ -123,7 +125,7 @@ export function InterestRateChart() {
           <path
             d={supplyPath}
             fill="none"
-            stroke="#4ade80"
+            stroke="#F59E0B"
             strokeWidth="0.8"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -133,7 +135,7 @@ export function InterestRateChart() {
           <path
             d={borrowPath}
             fill="none"
-            stroke="#fb923c"
+            stroke="#DC2626"
             strokeWidth="0.8"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -154,7 +156,7 @@ export function InterestRateChart() {
         </svg>
 
         {/* Y-axis labels */}
-        <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-xs text-gray-500 -ml-6">
+        <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-xs text-magic-500 -ml-6">
           <span>{maxRate.toFixed(1)}%</span>
           <span>{((maxRate + minRate) / 2).toFixed(1)}%</span>
           <span>{minRate.toFixed(1)}%</span>
@@ -162,21 +164,21 @@ export function InterestRateChart() {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center justify-center gap-6 mt-4 text-xs text-gray-400">
+      <div className="flex items-center justify-center gap-6 mt-4 text-xs text-magic-400">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-0.5 bg-green-400"></div>
+          <div className="w-3 h-0.5 bg-treasure-gold"></div>
           <span>Supply APY</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-0.5 bg-orange-400"></div>
+          <div className="w-3 h-0.5 bg-treasure-ruby"></div>
           <span>Borrow APY</span>
         </div>
       </div>
 
       {/* Rate info */}
-      <div className="mt-4 p-3 bg-gray-800/50 rounded-lg">
-        <p className="text-xs text-gray-400">
-          Interest rates are algorithmically determined based on supply and demand. 
+      <div className="mt-4 p-3 bg-treasure-navy/60 rounded-lg border border-magic-800/20">
+        <p className="text-xs text-magic-400">
+          ✨ Interest rates are algorithmically determined based on supply and demand. 
           Higher utilization = higher rates.
         </p>
       </div>

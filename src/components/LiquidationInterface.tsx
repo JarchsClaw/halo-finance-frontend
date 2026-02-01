@@ -54,9 +54,9 @@ const LIQUIDATION_ABI = [
 ] as const;
 
 function getHealthColor(healthFactor: number): string {
-  if (healthFactor >= 1) return "text-yellow-400";
+  if (healthFactor >= 1) return "text-amber-400";
   if (healthFactor >= 0.9) return "text-orange-400";
-  return "text-red-400";
+  return "text-treasure-ruby";
 }
 
 export function LiquidationInterface() {
@@ -88,20 +88,24 @@ export function LiquidationInterface() {
 
   if (!isConnected) {
     return (
-      <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-        <h3 className="text-lg font-bold mb-4">Liquidations</h3>
-        <p className="text-gray-400 text-sm">Connect wallet to view liquidation opportunities</p>
+      <div className="bg-gradient-to-br from-treasure-midnight/80 to-treasure-navy/90 rounded-xl p-6 border border-magic-800/30 glow-magic">
+        <h3 className="text-lg font-bold mb-4 text-treasure-gold flex items-center gap-2">
+          <span>⚔️</span> Liquidations
+        </h3>
+        <p className="text-magic-400 text-sm">Connect wallet to view liquidation opportunities</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+    <div className="bg-gradient-to-br from-treasure-midnight/80 to-treasure-navy/90 rounded-xl p-6 border border-treasure-ruby/30 glow-ruby">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold">Liquidation Opportunities</h3>
+        <h3 className="text-lg font-bold text-treasure-gold flex items-center gap-2">
+          <span>⚔️</span> Liquidation Opportunities
+        </h3>
         <div className="flex items-center gap-2 text-xs">
-          <span className="text-gray-500">Bonus:</span>
-          <span className="text-green-400 font-medium">5%</span>
+          <span className="text-magic-500">Bonus:</span>
+          <span className="text-treasure-gold font-medium">+5%</span>
         </div>
       </div>
 
@@ -109,7 +113,7 @@ export function LiquidationInterface() {
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-gray-500 text-xs uppercase">
+            <tr className="text-magic-500 text-xs uppercase">
               <th className="text-left py-2">Position</th>
               <th className="text-right py-2">Collateral</th>
               <th className="text-right py-2">Debt</th>
@@ -122,21 +126,21 @@ export function LiquidationInterface() {
             {MOCK_LIQUIDATABLE_POSITIONS.map((position) => (
               <tr 
                 key={position.id} 
-                className={`border-t border-gray-800 ${selectedPosition?.id === position.id ? 'bg-gray-800/50' : ''}`}
+                className={`border-t border-magic-800/30 ${selectedPosition?.id === position.id ? 'bg-treasure-navy/50' : ''}`}
               >
-                <td className="py-3 font-mono text-xs">{position.id}</td>
-                <td className="py-3 text-right">${position.collateral}</td>
-                <td className="py-3 text-right">${position.debt}</td>
+                <td className="py-3 font-mono text-xs text-magic-300">{position.id}</td>
+                <td className="py-3 text-right text-magic-200">${position.collateral}</td>
+                <td className="py-3 text-right text-treasure-ruby">${position.debt}</td>
                 <td className={`py-3 text-right font-mono ${getHealthColor(position.healthFactor)}`}>
                   {position.healthFactor.toFixed(2)}
                 </td>
-                <td className="py-3 text-right text-green-400">${position.maxLiquidatable}</td>
+                <td className="py-3 text-right text-treasure-gold">${position.maxLiquidatable}</td>
                 <td className="py-3 text-right">
                   <button
                     onClick={() => setSelectedPosition(position)}
-                    className="text-violet-400 hover:text-violet-300 text-xs"
+                    className="text-treasure-magenta hover:text-magic-400 text-xs font-medium"
                   >
-                    Select
+                    Select ✨
                   </button>
                 </td>
               </tr>
@@ -149,18 +153,18 @@ export function LiquidationInterface() {
       {MOCK_LIQUIDATABLE_POSITIONS.length === 0 && (
         <div className="text-center py-8">
           <span className="text-3xl mb-2">✨</span>
-          <p className="text-gray-400 text-sm">No liquidatable positions available</p>
+          <p className="text-magic-400 text-sm">No liquidatable positions available</p>
         </div>
       )}
 
       {/* Liquidation Form */}
       {selectedPosition && (
-        <div className="mt-6 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+        <div className="mt-6 p-4 bg-treasure-navy/60 rounded-lg border border-treasure-ruby/30">
           <div className="flex items-center justify-between mb-4">
-            <h4 className="font-medium">Liquidate Position</h4>
+            <h4 className="font-medium text-treasure-gold">⚔️ Liquidate Position</h4>
             <button 
               onClick={() => setSelectedPosition(null)}
-              className="text-gray-500 hover:text-white text-sm"
+              className="text-magic-500 hover:text-magic-200 text-sm"
             >
               ✕
             </button>
@@ -168,27 +172,27 @@ export function LiquidationInterface() {
 
           <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
             <div>
-              <span className="text-gray-500">Position:</span>
-              <span className="ml-2 font-mono">{selectedPosition.id}</span>
+              <span className="text-magic-500">Position:</span>
+              <span className="ml-2 font-mono text-magic-300">{selectedPosition.id}</span>
             </div>
             <div>
-              <span className="text-gray-500">Health Factor:</span>
+              <span className="text-magic-500">Health Factor:</span>
               <span className={`ml-2 ${getHealthColor(selectedPosition.healthFactor)}`}>
                 {selectedPosition.healthFactor.toFixed(2)}
               </span>
             </div>
             <div>
-              <span className="text-gray-500">Max Liquidatable:</span>
-              <span className="ml-2 text-green-400">${selectedPosition.maxLiquidatable}</span>
+              <span className="text-magic-500">Max Liquidatable:</span>
+              <span className="ml-2 text-treasure-gold">${selectedPosition.maxLiquidatable}</span>
             </div>
             <div>
-              <span className="text-gray-500">Bonus:</span>
-              <span className="ml-2 text-green-400">{selectedPosition.bonus}</span>
+              <span className="text-magic-500">Bonus:</span>
+              <span className="ml-2 text-treasure-gold">{selectedPosition.bonus}</span>
             </div>
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm text-gray-400 mb-2">Amount to Liquidate (USDC)</label>
+            <label className="block text-sm text-magic-400 mb-2">Amount to Liquidate (USDC)</label>
             <div className="relative">
               <input
                 type="number"
@@ -197,12 +201,12 @@ export function LiquidationInterface() {
                 placeholder="0.00"
                 step="0.01"
                 min="0"
-                className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 font-mono focus:outline-none focus:border-violet-500"
+                className="w-full bg-treasure-navy/80 border border-magic-800/50 rounded-lg px-4 py-3 font-mono text-magic-100 placeholder-magic-600 focus:outline-none focus:border-treasure-ruby/50 focus:shadow-ruby transition"
               />
               <button
                 type="button"
                 onClick={() => setAmount(selectedPosition.maxLiquidatable.replace(/,/g, ''))}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-violet-400 text-sm hover:text-violet-300"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-treasure-ruby text-sm hover:text-red-400 font-medium"
               >
                 MAX
               </button>
@@ -211,25 +215,25 @@ export function LiquidationInterface() {
 
           {/* Profit estimation */}
           {amount && parseFloat(amount) > 0 && (
-            <div className="mb-4 p-3 bg-green-900/20 border border-green-800 rounded-lg">
+            <div className="mb-4 p-3 bg-treasure-gold/10 border border-treasure-gold/30 rounded-lg">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Estimated Profit:</span>
-                <span className="text-green-400 font-medium">
-                  +${(parseFloat(amount) * 0.05).toFixed(2)} USDC
+                <span className="text-magic-400">Estimated Profit:</span>
+                <span className="text-treasure-gold font-medium">
+                  +${(parseFloat(amount) * 0.05).toFixed(2)} USDC ✨
                 </span>
               </div>
             </div>
           )}
 
           {isSuccess && hash && (
-            <div className="mb-4 p-3 bg-green-900/30 border border-green-700 rounded-lg">
-              <p className="text-green-400 text-sm">
-                ✓ Liquidation successful!{" "}
+            <div className="mb-4 p-3 bg-treasure-gold/20 border border-treasure-gold/50 rounded-lg">
+              <p className="text-treasure-gold text-sm">
+                ✨ Liquidation successful!{" "}
                 <a 
                   href={`https://basescan.org/tx/${hash}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="underline"
+                  className="underline hover:text-amber-400"
                 >
                   View transaction →
                 </a>
@@ -240,7 +244,7 @@ export function LiquidationInterface() {
           <button
             onClick={handleLiquidate}
             disabled={isLoading || !amount || parseFloat(amount) <= 0}
-            className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition"
+            className="w-full bg-gradient-to-r from-treasure-ruby to-red-600 hover:from-red-500 hover:to-red-700 disabled:from-magic-800 disabled:to-magic-700 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition shadow-ruby disabled:shadow-none"
           >
             {isLoading ? (
               <span className="flex items-center justify-center gap-2">
@@ -251,20 +255,20 @@ export function LiquidationInterface() {
                 {isPending ? "Confirm in wallet..." : "Liquidating..."}
               </span>
             ) : (
-              "Execute Liquidation"
+              "⚔️ Execute Liquidation"
             )}
           </button>
 
-          <p className="mt-3 text-xs text-gray-500 text-center">
-            You will receive the collateral + 5% bonus
+          <p className="mt-3 text-xs text-magic-500 text-center">
+            You will receive the collateral + 5% bonus ✨
           </p>
         </div>
       )}
 
       {/* Info */}
-      <div className="mt-4 p-3 bg-gray-800/50 rounded-lg">
-        <p className="text-xs text-gray-400">
-          <span className="text-yellow-400">⚠️</span> Liquidation targets positions with health factor below 1.0. 
+      <div className="mt-4 p-3 bg-treasure-navy/60 rounded-lg border border-magic-800/20">
+        <p className="text-xs text-magic-400">
+          <span className="text-treasure-gold">⚠️</span> Liquidation targets positions with health factor below 1.0. 
           You repay part of their debt and receive their collateral + 5% bonus.
         </p>
       </div>

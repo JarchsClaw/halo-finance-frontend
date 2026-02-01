@@ -41,31 +41,35 @@ export function SupplyForm() {
   };
 
   return (
-    <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+    <div className="bg-gradient-to-br from-treasure-midnight/80 to-treasure-navy/90 rounded-xl p-6 border border-treasure-gold/30 glow-gold">
       <div className="flex gap-2 mb-6">
         <button
           onClick={() => setMode("supply")}
           className={`flex-1 py-2 px-4 rounded-lg font-medium transition ${
-            mode === "supply" ? "bg-violet-600 text-white" : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+            mode === "supply" 
+              ? "bg-gradient-to-r from-treasure-gold to-amber-500 text-treasure-navy shadow-gold" 
+              : "bg-treasure-navy/60 text-magic-400 hover:bg-treasure-navy/80 border border-magic-800/30"
           }`}
         >
-          Supply
+          ✨ Supply
         </button>
         <button
           onClick={() => setMode("withdraw")}
           className={`flex-1 py-2 px-4 rounded-lg font-medium transition ${
-            mode === "withdraw" ? "bg-violet-600 text-white" : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+            mode === "withdraw" 
+              ? "bg-gradient-to-r from-treasure-gold to-amber-500 text-treasure-navy shadow-gold" 
+              : "bg-treasure-navy/60 text-magic-400 hover:bg-treasure-navy/80 border border-magic-800/30"
           }`}
         >
-          Withdraw
+          💰 Withdraw
         </button>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <div className="flex justify-between text-sm mb-2">
-            <label className="text-gray-400">Amount (USDC)</label>
-            <span className="text-gray-500">Balance: {parseFloat(balance).toLocaleString()} USDC</span>
+            <label className="text-magic-400">Amount (USDC)</label>
+            <span className="text-magic-500">Balance: {parseFloat(balance).toLocaleString()} USDC</span>
           </div>
           <div className="relative">
             <input
@@ -75,12 +79,12 @@ export function SupplyForm() {
               placeholder="0.00"
               step="0.01"
               min="0"
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-lg font-mono focus:outline-none focus:border-violet-500"
+              className="w-full bg-treasure-navy/80 border border-magic-800/50 rounded-lg px-4 py-3 text-lg font-mono text-magic-100 placeholder-magic-600 focus:outline-none focus:border-treasure-gold/50 focus:shadow-gold transition"
             />
             <button
               type="button"
               onClick={() => setAmount(balance)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-violet-400 text-sm hover:text-violet-300"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-treasure-gold text-sm hover:text-amber-400 font-medium"
             >
               MAX
             </button>
@@ -90,7 +94,7 @@ export function SupplyForm() {
         <button
           type="submit"
           disabled={isLoading || !amount || parseFloat(amount) <= 0}
-          className="w-full bg-violet-600 hover:bg-violet-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition"
+          className="w-full bg-gradient-to-r from-treasure-gold to-amber-500 hover:from-amber-400 hover:to-yellow-400 disabled:from-magic-800 disabled:to-magic-700 disabled:cursor-not-allowed text-treasure-navy font-semibold py-3 px-4 rounded-lg transition shadow-gold disabled:shadow-none"
         >
           {isLoading ? (
             <span className="flex items-center justify-center gap-2">
@@ -101,11 +105,11 @@ export function SupplyForm() {
               {isApproving ? "Approving..." : mode === "supply" ? "Supplying..." : "Withdrawing..."}
             </span>
           ) : needsApproval ? (
-            "Approve USDC"
+            "✨ Approve USDC"
           ) : mode === "supply" ? (
-            "Supply USDC"
+            "✨ Supply USDC"
           ) : (
-            "Withdraw USDC"
+            "💰 Withdraw USDC"
           )}
         </button>
       </form>

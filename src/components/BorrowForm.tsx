@@ -46,31 +46,38 @@ export function BorrowForm() {
   const canBorrow = isRegistered || !checkingRegistration;
 
   return (
-    <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+    <div className="bg-gradient-to-br from-treasure-midnight/80 to-treasure-navy/90 rounded-xl p-6 border border-treasure-ruby/30 glow-ruby">
       <div className="flex gap-2 mb-6">
         <button
           onClick={() => setMode("borrow")}
           className={`flex-1 py-2 px-4 rounded-lg font-medium transition ${
-            mode === "borrow" ? "bg-violet-600 text-white" : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+            mode === "borrow" 
+              ? "bg-gradient-to-r from-treasure-ruby to-treasure-magenta text-white shadow-ruby" 
+              : "bg-treasure-navy/60 text-magic-400 hover:bg-treasure-navy/80 border border-magic-800/30"
           }`}
         >
-          Borrow
+          🔮 Borrow
         </button>
         <button
           onClick={() => setMode("repay")}
           className={`flex-1 py-2 px-4 rounded-lg font-medium transition ${
-            mode === "repay" ? "bg-violet-600 text-white" : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+            mode === "repay" 
+              ? "bg-gradient-to-r from-treasure-ruby to-treasure-magenta text-white shadow-ruby" 
+              : "bg-treasure-navy/60 text-magic-400 hover:bg-treasure-navy/80 border border-magic-800/30"
           }`}
         >
-          Repay
+          💸 Repay
         </button>
       </div>
 
       {mode === "borrow" && !isRegistered && !checkingRegistration && (
-        <div className="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4 mb-4">
-          <p className="text-yellow-400 text-sm">
-            ⚠️ Agent borrowing requires ERC-8004 registration. 
-            <a href="/register" className="underline ml-1">Register your agent →</a>
+        <div className="bg-treasure-gold/10 border border-treasure-gold/50 rounded-lg p-4 mb-4">
+          <p className="text-treasure-gold text-sm flex items-start gap-2">
+            <span>⚠️</span>
+            <span>
+              Agent borrowing requires ERC-8004 registration. 
+              <a href="/register" className="underline ml-1 hover:text-amber-400">Register your agent →</a>
+            </span>
           </p>
         </div>
       )}
@@ -78,8 +85,8 @@ export function BorrowForm() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <div className="flex justify-between text-sm mb-2">
-            <label className="text-gray-400">Amount (USDC)</label>
-            <span className="text-gray-500">
+            <label className="text-magic-400">Amount (USDC)</label>
+            <span className="text-magic-500">
               {mode === "borrow" 
                 ? `Available: $${position ? parseFloat(position.availableBorrows).toLocaleString() : "0"}`
                 : `Debt: $${position ? parseFloat(position.totalDebt).toLocaleString() : "0"}`
@@ -94,12 +101,12 @@ export function BorrowForm() {
               placeholder="0.00"
               step="0.01"
               min="0"
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-lg font-mono focus:outline-none focus:border-violet-500"
+              className="w-full bg-treasure-navy/80 border border-magic-800/50 rounded-lg px-4 py-3 text-lg font-mono text-magic-100 placeholder-magic-600 focus:outline-none focus:border-treasure-ruby/50 focus:shadow-ruby transition"
             />
             <button
               type="button"
               onClick={() => setAmount(mode === "borrow" ? (position?.availableBorrows || "0") : (position?.totalDebt || "0"))}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-violet-400 text-sm hover:text-violet-300"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-treasure-ruby text-sm hover:text-red-400 font-medium"
             >
               MAX
             </button>
@@ -109,7 +116,7 @@ export function BorrowForm() {
         <button
           type="submit"
           disabled={isLoading || !amount || parseFloat(amount) <= 0 || (mode === "borrow" && !canBorrow)}
-          className="w-full bg-violet-600 hover:bg-violet-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition"
+          className="w-full bg-gradient-to-r from-treasure-ruby to-treasure-magenta hover:from-red-500 hover:to-fuchsia-500 disabled:from-magic-800 disabled:to-magic-700 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition shadow-ruby disabled:shadow-none"
         >
           {isLoading ? (
             <span className="flex items-center justify-center gap-2">
@@ -120,11 +127,11 @@ export function BorrowForm() {
               {isApproving ? "Approving..." : mode === "borrow" ? "Borrowing..." : "Repaying..."}
             </span>
           ) : needsApproval ? (
-            "Approve USDC"
+            "🔮 Approve USDC"
           ) : mode === "borrow" ? (
-            "Borrow USDC"
+            "🔮 Borrow USDC"
           ) : (
-            "Repay USDC"
+            "💸 Repay USDC"
           )}
         </button>
       </form>

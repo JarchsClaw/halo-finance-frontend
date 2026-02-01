@@ -39,17 +39,19 @@ export default function RegisterPage() {
   const isLoading = isPending || isConfirming;
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative z-10">
       {/* Header */}
-      <header className="border-b border-gray-800">
+      <header className="border-b border-magic-800/30 backdrop-blur-sm bg-treasure-midnight/50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center">
-              <span className="text-xl">🔮</span>
+            <div className="w-10 h-10 bg-gradient-to-br from-treasure-ruby via-treasure-magenta to-magic-600 rounded-xl flex items-center justify-center shadow-magic">
+              <span className="text-xl">✨</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold">Halo Finance</h1>
-              <p className="text-xs text-gray-500">ERC-8004 Registration</p>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-treasure-gold via-treasure-ruby to-treasure-magenta bg-clip-text text-transparent">
+                Halo Finance
+              </h1>
+              <p className="text-xs text-magic-300">ERC-8004 Registration</p>
             </div>
           </Link>
           <ConnectButton />
@@ -58,87 +60,89 @@ export default function RegisterPage() {
 
       <main className="max-w-2xl mx-auto px-4 py-12">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold mb-4">Register Your Agent</h2>
-          <p className="text-gray-400">
+          <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-treasure-gold via-treasure-ruby to-treasure-magenta bg-clip-text text-transparent">
+            🤖 Register Your Agent
+          </h2>
+          <p className="text-magic-300">
             ERC-8004 registration enables your AI agent to borrow from Halo Finance
             with on-chain identity verification.
           </p>
         </div>
 
         {!isConnected ? (
-          <div className="bg-gray-900 rounded-xl p-8 border border-gray-800 text-center">
-            <p className="text-gray-400 mb-4">Connect your wallet to register</p>
+          <div className="bg-gradient-to-br from-treasure-midnight/80 to-treasure-navy/90 rounded-xl p-8 border border-magic-800/30 text-center glow-magic">
+            <p className="text-magic-400 mb-4">Connect your wallet to register</p>
             <ConnectButton />
           </div>
         ) : isRegistered ? (
-          <div className="bg-green-900/30 rounded-xl p-8 border border-green-700 text-center">
-            <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-3xl">✓</span>
+          <div className="bg-gradient-to-br from-treasure-gold/20 to-amber-500/10 rounded-xl p-8 border border-treasure-gold/50 text-center glow-gold">
+            <div className="w-16 h-16 bg-treasure-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-3xl">✨</span>
             </div>
-            <h3 className="text-xl font-bold text-green-400 mb-2">Already Registered</h3>
-            <p className="text-gray-400 mb-4">
-              Your agent <span className="text-white font-mono">{existingHandle}</span> is verified on ERC-8004
+            <h3 className="text-xl font-bold text-treasure-gold mb-2">Already Registered</h3>
+            <p className="text-magic-300 mb-4">
+              Your agent <span className="text-treasure-gold font-mono">{existingHandle}</span> is verified on ERC-8004
             </p>
             <Link 
               href="/"
-              className="inline-block bg-violet-600 hover:bg-violet-700 text-white font-medium py-2 px-6 rounded-lg transition"
+              className="inline-block bg-gradient-to-r from-treasure-gold to-amber-500 hover:from-amber-400 hover:to-yellow-400 text-treasure-navy font-semibold py-2 px-6 rounded-lg transition shadow-gold"
             >
               Start Borrowing →
             </Link>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="bg-gray-900 rounded-xl p-6 border border-gray-800 space-y-6">
+          <form onSubmit={handleSubmit} className="bg-gradient-to-br from-treasure-midnight/80 to-treasure-navy/90 rounded-xl p-6 border border-treasure-magenta/30 space-y-6 glow-magic">
             <div>
-              <label className="block text-sm text-gray-400 mb-2">Agent Handle</label>
+              <label className="block text-sm text-magic-400 mb-2">Agent Handle</label>
               <input
                 type="text"
                 value={handle}
                 onChange={(e) => setHandle(e.target.value.replace(/[^a-zA-Z0-9_-]/g, ""))}
                 placeholder="my-agent"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-violet-500"
+                className="w-full bg-treasure-navy/80 border border-magic-800/50 rounded-lg px-4 py-3 text-magic-100 placeholder-magic-600 focus:outline-none focus:border-treasure-magenta/50 focus:shadow-magic transition"
               />
-              <p className="text-xs text-gray-500 mt-1">Letters, numbers, hyphens, underscores only</p>
+              <p className="text-xs text-magic-500 mt-1">Letters, numbers, hyphens, underscores only</p>
             </div>
 
             <div>
-              <label className="block text-sm text-gray-400 mb-2">Registration URI</label>
+              <label className="block text-sm text-magic-400 mb-2">Registration URI</label>
               <input
                 type="url"
                 value={registrationURI}
                 onChange={(e) => setRegistrationURI(e.target.value)}
                 placeholder="https://example.com/agent.json"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 font-mono text-sm focus:outline-none focus:border-violet-500"
+                className="w-full bg-treasure-navy/80 border border-magic-800/50 rounded-lg px-4 py-3 font-mono text-sm text-magic-100 placeholder-magic-600 focus:outline-none focus:border-treasure-magenta/50 focus:shadow-magic transition"
               />
-              <p className="text-xs text-gray-500 mt-1">Points to your agent&apos;s registration file</p>
+              <p className="text-xs text-magic-500 mt-1">Points to your agent&apos;s registration file</p>
             </div>
 
-            <div className="bg-gray-800 rounded-lg p-4">
-              <h4 className="text-sm font-medium mb-2">Registration Details</h4>
+            <div className="bg-treasure-navy/60 rounded-lg p-4 border border-magic-800/20">
+              <h4 className="text-sm font-medium mb-2 text-treasure-gold">✨ Registration Details</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Address</span>
-                  <span className="font-mono text-xs">{address?.slice(0, 6)}...{address?.slice(-4)}</span>
+                  <span className="text-magic-400">Address</span>
+                  <span className="font-mono text-xs text-magic-200">{address?.slice(0, 6)}...{address?.slice(-4)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Handle</span>
-                  <span className="font-mono">{handle || "-"}</span>
+                  <span className="text-magic-400">Handle</span>
+                  <span className="font-mono text-magic-200">{handle || "-"}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Network</span>
-                  <span>Base</span>
+                  <span className="text-magic-400">Network</span>
+                  <span className="text-magic-200">Base</span>
                 </div>
               </div>
             </div>
 
             {isSuccess && hash && (
-              <div className="bg-green-900/30 border border-green-700 rounded-lg p-4">
-                <p className="text-green-400 text-sm">
-                  ✓ Registration successful!{" "}
+              <div className="bg-treasure-gold/20 border border-treasure-gold/50 rounded-lg p-4">
+                <p className="text-treasure-gold text-sm">
+                  ✨ Registration successful!{" "}
                   <a 
                     href={`https://basescan.org/tx/${hash}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="underline"
+                    className="underline hover:text-amber-400"
                   >
                     View transaction →
                   </a>
@@ -149,7 +153,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isLoading || !handle || !registrationURI}
-              className="w-full bg-violet-600 hover:bg-violet-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition"
+              className="w-full bg-gradient-to-r from-treasure-magenta to-magic-600 hover:from-fuchsia-500 hover:to-purple-500 disabled:from-magic-800 disabled:to-magic-700 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition shadow-magic disabled:shadow-none"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -160,7 +164,7 @@ export default function RegisterPage() {
                   {isPending ? "Confirm in wallet..." : "Registering..."}
                 </span>
               ) : (
-                "Register Agent"
+                "🤖 Register Agent"
               )}
             </button>
           </form>
@@ -168,15 +172,15 @@ export default function RegisterPage() {
 
         {/* Info */}
         <div className="mt-8 grid md:grid-cols-2 gap-4">
-          <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-800">
-            <h4 className="font-medium mb-2">🔐 What is ERC-8004?</h4>
-            <p className="text-sm text-gray-400">
+          <div className="bg-gradient-to-br from-treasure-midnight/80 to-treasure-navy/90 rounded-xl p-4 border border-treasure-ruby/30 glow-ruby">
+            <h4 className="font-medium mb-2 text-treasure-gold">🔐 What is ERC-8004?</h4>
+            <p className="text-sm text-magic-400">
               An Ethereum standard for trustless agent identity. It lets protocols verify that an address belongs to a legitimate AI agent.
             </p>
           </div>
-          <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-800">
-            <h4 className="font-medium mb-2">💡 Why Register?</h4>
-            <p className="text-sm text-gray-400">
+          <div className="bg-gradient-to-br from-treasure-midnight/80 to-treasure-navy/90 rounded-xl p-4 border border-treasure-gold/30 glow-gold">
+            <h4 className="font-medium mb-2 text-treasure-gold">💡 Why Register?</h4>
+            <p className="text-sm text-magic-400">
               Registration enables borrowing, builds on-chain reputation, and unlocks agent-specific features across DeFi.
             </p>
           </div>
