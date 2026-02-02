@@ -1,36 +1,171 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Halo Finance Frontend
 
-## Getting Started
+A DeFi lending protocol frontend designed for AI agents on Base, featuring ERC-8004 identity verification integration.
 
-First, run the development server:
+![Halo Finance](https://img.shields.io/badge/Network-Base-blue) ![Next.js](https://img.shields.io/badge/Next.js-14-black) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
+
+## ✨ Features
+
+- **Supply & Withdraw USDC** - Earn yield by supplying USDC to the protocol
+- **Collateral Management** - Deposit WETH and other supported assets as collateral
+- **Borrow USDC** - Borrow against your collateral with safety limits (95% max)
+- **ERC-8004 Integration** - AI agent identity verification for enhanced borrowing
+- **Liquidation Interface** - View and execute liquidation opportunities
+- **Real-time Position Tracking** - Health factor monitoring and alerts
+- **Reputation Scoring** - Track agent reputation metrics (demo data)
+- **Interest Rate Charts** - Visualize supply and borrow APY trends (demo data)
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+ 
+- pnpm (recommended) or npm
+- A WalletConnect Project ID ([Get one here](https://cloud.walletconnect.com/))
+
+### Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Clone the repository
+git clone https://github.com/JarchsClaw/halo-finance-frontend.git
+cd halo-finance-frontend
+
+# Install dependencies
+pnpm install
+
+# Copy environment file and add your WalletConnect ID
+cp .env.example .env.local
+# Edit .env.local and add your NEXT_PUBLIC_WALLETCONNECT_ID
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create a `.env.local` file with:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+# Required - Get your project ID at https://cloud.walletconnect.com/
+NEXT_PUBLIC_WALLETCONNECT_ID=your_project_id_here
+```
 
-## Learn More
+### Development
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Production Build
 
-## Deploy on Vercel
+```bash
+pnpm build
+pnpm start
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📁 Project Structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+├── app/                    # Next.js App Router pages
+│   ├── layout.tsx         # Root layout with providers
+│   ├── page.tsx           # Home page (Dashboard)
+│   └── register/          # ERC-8004 registration page
+├── components/
+│   ├── BorrowForm.tsx     # Borrow/Repay USDC interface
+│   ├── CollateralForm.tsx # Multi-asset collateral management
+│   ├── Dashboard.tsx      # Main dashboard layout
+│   ├── InterestRateChart.tsx # APY visualization (demo data)
+│   ├── LiquidationInterface.tsx # Liquidation opportunities (demo data)
+│   ├── PositionCard.tsx   # User position summary with health factor
+│   ├── Providers.tsx      # Wagmi, RainbowKit, React Query setup
+│   ├── ReputationScore.tsx # Agent reputation metrics (demo data)
+│   └── SupplyForm.tsx     # Supply/Withdraw USDC interface
+├── hooks/
+│   ├── useERC8004.ts      # ERC-8004 identity registry hooks
+│   └── useHalo.ts         # Halo Finance contract hooks
+└── lib/
+    ├── contracts.ts       # Contract addresses and ABIs
+    └── wagmi.ts           # Wagmi configuration
+```
+
+## 🔧 Technical Details
+
+### Supported Networks
+
+- **Base Mainnet** (Chain ID: 8453)
+
+### Contract Addresses
+
+| Contract | Address |
+|----------|---------|
+| Halo Finance | `0x9b98511c7fb7d9a0541dfBc0b3d8Ef4CC25341ad` |
+| USDC (Base) | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` |
+| WETH (Base) | `0x4200000000000000000000000000000000000006` |
+
+### Supported Collateral Assets
+
+| Asset | LTV | Liquidation Threshold |
+|-------|-----|----------------------|
+| WETH | 80% | 85% |
+| USDC | 85% | 90% |
+
+### Key Features Explained
+
+#### Safe Borrow Limits
+The borrow form uses a 95% safety buffer on available borrows to reduce liquidation risk. Users can still borrow up to 100% if needed, but the "SAFE MAX" button defaults to 95%.
+
+#### Infinite Approvals
+Token approvals use `maxUint256` for gas efficiency, meaning you only need to approve once per token.
+
+#### Toast Notifications
+All transactions show success/error toasts with links to BaseScan for transaction tracking.
+
+#### ERC-8004 Registry
+Note: As of Feb 2026, there is no official ERC-8004 registry deployed on Base mainnet. The integration is ready but uses a placeholder address. Update `src/lib/contracts.ts` with the actual registry address when available.
+
+## 🎨 Demo Data
+
+Some components display demo data for presentation purposes:
+
+- **Reputation Score** - Generates deterministic mock scores from wallet address
+- **Interest Rate Chart** - Shows simulated historical APY data
+- **Liquidation Interface** - Displays mock liquidatable positions
+- **Protocol Stats** - Static demo statistics
+
+These are clearly marked with a "Demo Data" badge in the UI.
+
+## 🛠️ Development
+
+### Tech Stack
+
+- [Next.js 14](https://nextjs.org/) - React framework
+- [TypeScript](https://www.typescriptlang.org/) - Type safety
+- [Tailwind CSS](https://tailwindcss.com/) - Styling
+- [wagmi](https://wagmi.sh/) - React hooks for Ethereum
+- [viem](https://viem.sh/) - TypeScript Ethereum library
+- [RainbowKit](https://www.rainbowkit.com/) - Wallet connection UI
+- [TanStack Query](https://tanstack.com/query) - Async state management
+- [Sonner](https://sonner.emilkowal.ski/) - Toast notifications
+
+### Scripts
+
+```bash
+pnpm dev      # Start development server
+pnpm build    # Build for production
+pnpm start    # Start production server
+pnpm lint     # Run ESLint
+```
+
+## 📄 License
+
+MIT
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 🔗 Links
+
+- [Treasure](https://treasure.lol)
+- [Base](https://base.org)
+- [ERC-8004 Proposal](https://eips.ethereum.org/EIPS/eip-8004)

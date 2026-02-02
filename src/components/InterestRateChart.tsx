@@ -1,13 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
-// Mock historical rate data
+// Mock historical rate data - in production would come from contract events/subgraph
 const generateRateHistory = (baseRate: number, days: number = 30) => {
   const data = [];
   let rate = baseRate;
+  // Use a seeded random for consistent demo data
+  const seed = 42;
+  let seedState = seed;
+  const seededRandom = () => {
+    seedState = (seedState * 1103515245 + 12345) & 0x7fffffff;
+    return seedState / 0x7fffffff;
+  };
+  
   for (let i = days; i >= 0; i--) {
-    rate = Math.max(0.5, Math.min(15, rate + (Math.random() - 0.5) * 0.8));
+    rate = Math.max(0.5, Math.min(15, rate + (seededRandom() - 0.5) * 0.8));
     data.push({
       day: i,
       rate: parseFloat(rate.toFixed(2)),
@@ -44,14 +52,19 @@ export function InterestRateChart() {
   // Calculate chart dimensions
   const chartWidth = 100;
   const chartHeight = 60;
-  const maxRate = Math.max(...borrowData.map(d => d.rate), ...supplyData.map(d => d.rate)) + 1;
-  const minRate = Math.min(...borrowData.map(d => d.rate), ...supplyData.map(d => d.rate)) - 0.5;
+  
+  const { maxRate, minRate, supplyPath, borrowPath } = useMemo(() => {
+    const max = Math.max(...borrowData.map(d => d.rate), ...supplyData.map(d => d.rate)) + 1;
+    const min = Math.min(...borrowData.map(d => d.rate), ...supplyData.map(d => d.rate)) - 0.5;
+    
+    const toX = (i: number) => (i / (supplyData.length - 1)) * chartWidth;
+    const toY = (rate: number) => chartHeight - ((rate - min) / (max - min)) * chartHeight;
 
-  const toX = (i: number) => (i / (supplyData.length - 1)) * chartWidth;
-  const toY = (rate: number) => chartHeight - ((rate - minRate) / (maxRate - minRate)) * chartHeight;
-
-  const supplyPath = supplyData.map((d, i) => `${i === 0 ? 'M' : 'L'} ${toX(i)} ${toY(d.rate)}`).join(' ');
-  const borrowPath = borrowData.map((d, i) => `${i === 0 ? 'M' : 'L'} ${toX(i)} ${toY(d.rate)}`).join(' ');
+    const sPath = supplyData.map((d, i) => `${i === 0 ? 'M' : 'L'} ${toX(i)} ${toY(d.rate)}`).join(' ');
+    const bPath = borrowData.map((d, i) => `${i === 0 ? 'M' : 'L'} ${toX(i)} ${toY(d.rate)}`).join(' ');
+    
+    return { maxRate: max, minRate: min, supplyPath: sPath, borrowPath: bPath };
+  }, [supplyData, borrowData]);
 
   return (
     <div className="bg-gradient-to-br from-treasure-midnight/80 to-treasure-navy/90 rounded-xl p-6 border border-magic-800/30 glow-magic">
@@ -59,20 +72,25 @@ export function InterestRateChart() {
         <h3 className="text-lg font-bold text-treasure-gold flex items-center gap-2">
           <span>📈</span> Interest Rates
         </h3>
-        <div className="flex gap-1">
-          {(["7d", "30d", "90d"] as TimeRange[]).map((range) => (
-            <button
-              key={range}
-              onClick={() => setTimeRange(range)}
-              className={`px-2 py-1 text-xs rounded transition ${
-                timeRange === range
-                  ? "bg-gradient-to-r from-treasure-ruby to-treasure-magenta text-white"
-                  : "bg-treasure-navy/60 text-magic-400 hover:bg-treasure-navy/80 border border-magic-800/30"
-              }`}
-            >
-              {range}
-            </button>
-          ))}
+        <div className="flex items-center gap-2">
+          <span className="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded border border-amber-500/30">
+            Demo Data
+          </span>
+          <div className="flex gap-1">
+            {(["7d", "30d", "90d"] as TimeRange[]).map((range) => (
+              <button
+                key={range}
+                onClick={() => setTimeRange(range)}
+                className={`px-2 py-1 text-xs rounded transition ${
+                  timeRange === range
+                    ? "bg-gradient-to-r from-treasure-ruby to-treasure-magenta text-white"
+                    : "bg-treasure-navy/60 text-magic-400 hover:bg-treasure-navy/80 border border-magic-800/30"
+                }`}
+              >
+                {range}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -145,7 +163,7 @@ export function InterestRateChart() {
           {supplyData.map((d, i) => (
             <rect
               key={i}
-              x={toX(i) - chartWidth / supplyData.length / 2}
+              x={(i / (supplyData.length - 1)) * chartWidth - chartWidth / supplyData.length / 2}
               y="0"
               width={chartWidth / supplyData.length}
               height={chartHeight}

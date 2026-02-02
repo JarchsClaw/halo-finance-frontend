@@ -6,15 +6,16 @@ import { useIsRegistered } from "@/hooks/useERC8004";
 // Mock reputation data - in production would come from ERC-8004 reputation registry
 function useReputationScore() {
   const { address } = useAccount();
-  const { isRegistered } = useIsRegistered();
+  const { isRegistered, registryAvailable } = useIsRegistered();
 
   // Mock scores based on registration status
-  if (!isRegistered || !address) {
+  // Note: Registry may not be available on Base mainnet yet
+  if ((!registryAvailable || !isRegistered) && !address) {
     return { score: 0, level: "Unregistered", metrics: null };
   }
 
   // Generate deterministic mock scores from address
-  const seed = parseInt(address.slice(-4), 16);
+  const seed = address ? parseInt(address.slice(-4), 16) : 0;
   const score = 65 + (seed % 35); // 65-100 range
 
   return {
@@ -90,8 +91,13 @@ export function ReputationScore() {
         <h3 className="text-lg font-bold text-treasure-gold flex items-center gap-2">
           <span>⭐</span> Reputation Score
         </h3>
-        <div className={`px-2 py-1 rounded border text-xs font-medium ${badge.bg} ${badge.text}`}>
-          ✨ {level}
+        <div className="flex items-center gap-2">
+          <span className="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded border border-amber-500/30">
+            Demo Data
+          </span>
+          <div className={`px-2 py-1 rounded border text-xs font-medium ${badge.bg} ${badge.text}`}>
+            ✨ {level}
+          </div>
         </div>
       </div>
 

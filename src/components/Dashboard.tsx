@@ -5,17 +5,18 @@ import { useAccount } from "wagmi";
 import { PositionCard } from "@/components/PositionCard";
 import { SupplyForm } from "@/components/SupplyForm";
 import { BorrowForm } from "@/components/BorrowForm";
+import { CollateralForm } from "@/components/CollateralForm";
 import { ReputationScore } from "@/components/ReputationScore";
 import { InterestRateChart } from "@/components/InterestRateChart";
 import { LiquidationInterface } from "@/components/LiquidationInterface";
 import { useIsRegistered, useAgentHandle } from "@/hooks/useERC8004";
 import { useState } from "react";
 
-type Tab = "dashboard" | "liquidate";
+type Tab = "dashboard" | "collateral" | "liquidate";
 
 export default function Dashboard() {
   const { isConnected } = useAccount();
-  const { isRegistered } = useIsRegistered();
+  const { isRegistered, registryAvailable } = useIsRegistered();
   const { handle } = useAgentHandle();
   const [activeTab, setActiveTab] = useState<Tab>("dashboard");
 
@@ -37,7 +38,7 @@ export default function Dashboard() {
           </div>
           
           <div className="flex items-center gap-4">
-            {isConnected && isRegistered && (
+            {isConnected && registryAvailable && isRegistered && (
               <div className="bg-treasure-magenta/20 border border-treasure-magenta/50 rounded-lg px-3 py-1.5 flex items-center gap-2 glow-magic">
                 <div className="w-2 h-2 bg-treasure-magenta rounded-full animate-pulse"></div>
                 <span className="text-magic-300 text-sm">ERC-8004: {handle || "Verified"}</span>
@@ -52,10 +53,10 @@ export default function Dashboard() {
       {isConnected && (
         <div className="border-b border-magic-800/30 backdrop-blur-sm bg-treasure-midnight/30">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="flex gap-6">
+            <div className="flex gap-6 overflow-x-auto">
               <button
                 onClick={() => setActiveTab("dashboard")}
-                className={`py-3 px-1 text-sm font-medium border-b-2 transition ${
+                className={`py-3 px-1 text-sm font-medium border-b-2 transition whitespace-nowrap ${
                   activeTab === "dashboard"
                     ? "border-treasure-ruby text-treasure-gold"
                     : "border-transparent text-magic-400 hover:text-magic-200"
@@ -64,8 +65,18 @@ export default function Dashboard() {
                 ✨ Dashboard
               </button>
               <button
+                onClick={() => setActiveTab("collateral")}
+                className={`py-3 px-1 text-sm font-medium border-b-2 transition whitespace-nowrap ${
+                  activeTab === "collateral"
+                    ? "border-treasure-ruby text-treasure-gold"
+                    : "border-transparent text-magic-400 hover:text-magic-200"
+                }`}
+              >
+                🏦 Collateral
+              </button>
+              <button
                 onClick={() => setActiveTab("liquidate")}
-                className={`py-3 px-1 text-sm font-medium border-b-2 transition ${
+                className={`py-3 px-1 text-sm font-medium border-b-2 transition whitespace-nowrap ${
                   activeTab === "liquidate"
                     ? "border-treasure-ruby text-treasure-gold"
                     : "border-transparent text-magic-400 hover:text-magic-200"
@@ -158,9 +169,14 @@ export default function Dashboard() {
               
               {/* Protocol Stats */}
               <div className="bg-gradient-to-br from-treasure-midnight/80 to-treasure-navy/90 rounded-xl p-6 border border-magic-800/30 glow-magic">
-                <h3 className="text-lg font-bold mb-4 text-treasure-gold flex items-center gap-2">
-                  <span>✨</span> Protocol Stats
-                </h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold text-treasure-gold flex items-center gap-2">
+                    <span>✨</span> Protocol Stats
+                  </h3>
+                  <span className="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded border border-amber-500/30">
+                    Demo Data
+                  </span>
+                </div>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span className="text-magic-400">Network</span>
@@ -196,7 +212,7 @@ export default function Dashboard() {
                 <p className="text-magic-300 text-sm">
                   Borrow against your holdings without selling. ERC-8004 registration ensures your agent identity is verified on-chain.
                 </p>
-                {!isRegistered && (
+                {registryAvailable && !isRegistered && (
                   <a 
                     href="/register" 
                     className="inline-block mt-3 text-treasure-gold hover:text-amber-400 text-sm font-medium"
@@ -205,6 +221,43 @@ export default function Dashboard() {
                   </a>
                 )}
               </div>
+            </div>
+          </div>
+        ) : activeTab === "collateral" ? (
+          /* Collateral Tab */
+          <div className="grid lg:grid-cols-2 gap-6">
+            <div className="space-y-6">
+              <CollateralForm />
+              
+              {/* Collateral Info */}
+              <div className="bg-gradient-to-br from-treasure-midnight/80 to-treasure-navy/90 rounded-xl p-6 border border-magic-800/30 glow-magic">
+                <h3 className="text-lg font-bold mb-4 text-treasure-gold flex items-center gap-2">
+                  💡 About Collateral
+                </h3>
+                <div className="space-y-4 text-sm text-magic-300">
+                  <div className="flex gap-3">
+                    <span className="text-treasure-magenta font-bold">1.</span>
+                    <p>Deposit supported assets (WETH, USDC) as collateral to unlock borrowing</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <span className="text-treasure-magenta font-bold">2.</span>
+                    <p>Each asset has a different Loan-to-Value (LTV) ratio determining how much you can borrow</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <span className="text-treasure-magenta font-bold">3.</span>
+                    <p>Monitor your health factor to avoid liquidation when prices fluctuate</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <span className="text-treasure-magenta font-bold">4.</span>
+                    <p>Withdraw collateral anytime as long as it doesn&apos;t put your position at risk</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-6">
+              <PositionCard />
+              <InterestRateChart />
             </div>
           </div>
         ) : (
@@ -243,7 +296,7 @@ export default function Dashboard() {
 
       {/* Footer */}
       <footer className="border-t border-magic-800/30 mt-auto backdrop-blur-sm bg-treasure-midnight/30">
-        <div className="max-w-7xl mx-auto px-4 py-6 flex items-center justify-between text-sm">
+        <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
           <div className="flex items-center gap-2">
             <span className="text-magic-500">Halo Finance © 2026</span>
             <span className="text-treasure-gold">✨</span>

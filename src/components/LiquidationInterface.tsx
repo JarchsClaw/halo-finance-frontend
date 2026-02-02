@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { toast } from "sonner";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { parseUnits } from "viem";
 import { HALO_CONTRACT, USDC_BASE } from "@/lib/contracts";
 
-// Mock liquidatable positions
+// Mock liquidatable positions - in production would come from contract events/subgraph
 const MOCK_LIQUIDATABLE_POSITIONS = [
   {
     id: "0x1a2b...3c4d",
@@ -64,11 +65,31 @@ export function LiquidationInterface() {
   const [selectedPosition, setSelectedPosition] = useState<typeof MOCK_LIQUIDATABLE_POSITIONS[0] | null>(null);
   const [amount, setAmount] = useState("");
   
-  const { writeContract, data: hash, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
+  const { writeContract, data: hash, isPending, error, isError, reset } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess, isError: isReceiptError, error: receiptError } = useWaitForTransactionReceipt({ hash });
+
+  // Validation
+  const validation = useMemo(() => {
+    const amountNum = parseFloat(amount || "0");
+    const maxNum = parseFloat((selectedPosition?.maxLiquidatable || "0").replace(/,/g, ''));
+    
+    if (!amount || amount === "") {
+      return { valid: false, error: null };
+    }
+    
+    if (amountNum <= 0) {
+      return { valid: false, error: "Amount must be greater than 0" };
+    }
+    
+    if (amountNum > maxNum) {
+      return { valid: false, error: `Cannot exceed max liquidatable (${selectedPosition?.maxLiquidatable})` };
+    }
+    
+    return { valid: true, error: null };
+  }, [amount, selectedPosition?.maxLiquidatable]);
 
   const handleLiquidate = () => {
-    if (!selectedPosition || !amount || !address) return;
+    if (!selectedPosition || !validation.valid || !address) return;
     
     writeContract({
       address: HALO_CONTRACT,
@@ -83,6 +104,32 @@ export function LiquidationInterface() {
       ],
     });
   };
+
+  // Handle success toast
+  useEffect(() => {
+    if (isSuccess && hash) {
+      toast.success("⚔️ Liquidation Successful!", {
+        description: `You liquidated ${amount} USDC and received collateral + 5% bonus`,
+        action: {
+          label: "View TX",
+          onClick: () => window.open(`https://basescan.org/tx/${hash}`, "_blank"),
+        },
+      });
+      setAmount("");
+      setSelectedPosition(null);
+      reset();
+    }
+  }, [isSuccess, hash, amount, reset]);
+
+  // Handle error toast
+  useEffect(() => {
+    if ((isError && error) || (isReceiptError && receiptError)) {
+      toast.error("Liquidation Failed", {
+        description: (error || receiptError)?.message?.slice(0, 100) || "Transaction was rejected",
+      });
+      reset();
+    }
+  }, [isError, error, isReceiptError, receiptError, reset]);
 
   const isLoading = isPending || isConfirming;
 
@@ -99,18 +146,64 @@ export function LiquidationInterface() {
 
   return (
     <div className="bg-gradient-to-br from-treasure-midnight/80 to-treasure-navy/90 rounded-xl p-6 border border-treasure-ruby/30 glow-ruby">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <h3 className="text-lg font-bold text-treasure-gold flex items-center gap-2">
           <span>⚔️</span> Liquidation Opportunities
         </h3>
-        <div className="flex items-center gap-2 text-xs">
-          <span className="text-magic-500">Bonus:</span>
-          <span className="text-treasure-gold font-medium">+5%</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded border border-amber-500/30">
+            Demo Data
+          </span>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-magic-500">Bonus:</span>
+            <span className="text-treasure-gold font-medium">+5%</span>
+          </div>
         </div>
       </div>
 
-      {/* Liquidatable Positions Table */}
-      <div className="overflow-x-auto">
+      {/* Liquidatable Positions - Mobile Cards + Desktop Table */}
+      <div className="block sm:hidden space-y-3">
+        {MOCK_LIQUIDATABLE_POSITIONS.map((position) => (
+          <div 
+            key={position.id}
+            className={`p-4 rounded-lg border transition ${
+              selectedPosition?.id === position.id 
+                ? 'border-treasure-ruby/50 bg-treasure-navy/50' 
+                : 'border-magic-800/30 bg-treasure-navy/30'
+            }`}
+          >
+            <div className="flex justify-between items-start mb-2">
+              <span className="font-mono text-xs text-magic-300">{position.id}</span>
+              <span className={`font-mono text-sm ${getHealthColor(position.healthFactor)}`}>
+                HF: {position.healthFactor.toFixed(2)}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div>
+                <span className="text-magic-500 text-xs">Collateral</span>
+                <div className="text-magic-200">${position.collateral}</div>
+              </div>
+              <div>
+                <span className="text-magic-500 text-xs">Debt</span>
+                <div className="text-treasure-ruby">${position.debt}</div>
+              </div>
+              <div className="col-span-2">
+                <span className="text-magic-500 text-xs">Max Liquidate</span>
+                <div className="text-treasure-gold">${position.maxLiquidatable}</div>
+              </div>
+            </div>
+            <button
+              onClick={() => setSelectedPosition(position)}
+              className="w-full py-2 text-sm font-medium text-treasure-magenta hover:text-magic-400 border border-treasure-magenta/30 rounded-lg hover:bg-treasure-magenta/10 transition"
+            >
+              Select ✨
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop Table */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="text-magic-500 text-xs uppercase">
@@ -201,7 +294,11 @@ export function LiquidationInterface() {
                 placeholder="0.00"
                 step="0.01"
                 min="0"
-                className="w-full bg-treasure-navy/80 border border-magic-800/50 rounded-lg px-4 py-3 font-mono text-magic-100 placeholder-magic-600 focus:outline-none focus:border-treasure-ruby/50 focus:shadow-ruby transition"
+                className={`w-full bg-treasure-navy/80 border rounded-lg px-4 py-3 font-mono text-magic-100 placeholder-magic-600 focus:outline-none transition ${
+                  validation.error 
+                    ? "border-treasure-ruby/50 focus:border-treasure-ruby" 
+                    : "border-magic-800/50 focus:border-treasure-ruby/50 focus:shadow-ruby"
+                }`}
               />
               <button
                 type="button"
@@ -211,10 +308,15 @@ export function LiquidationInterface() {
                 MAX
               </button>
             </div>
+            {validation.error && (
+              <p className="mt-2 text-sm text-treasure-ruby flex items-center gap-1">
+                <span>⚠️</span> {validation.error}
+              </p>
+            )}
           </div>
 
           {/* Profit estimation */}
-          {amount && parseFloat(amount) > 0 && (
+          {amount && parseFloat(amount) > 0 && validation.valid && (
             <div className="mb-4 p-3 bg-treasure-gold/10 border border-treasure-gold/30 rounded-lg">
               <div className="flex justify-between text-sm">
                 <span className="text-magic-400">Estimated Profit:</span>
@@ -225,25 +327,9 @@ export function LiquidationInterface() {
             </div>
           )}
 
-          {isSuccess && hash && (
-            <div className="mb-4 p-3 bg-treasure-gold/20 border border-treasure-gold/50 rounded-lg">
-              <p className="text-treasure-gold text-sm">
-                ✨ Liquidation successful!{" "}
-                <a 
-                  href={`https://basescan.org/tx/${hash}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline hover:text-amber-400"
-                >
-                  View transaction →
-                </a>
-              </p>
-            </div>
-          )}
-
           <button
             onClick={handleLiquidate}
-            disabled={isLoading || !amount || parseFloat(amount) <= 0}
+            disabled={isLoading || !validation.valid}
             className="w-full bg-gradient-to-r from-treasure-ruby to-red-600 hover:from-red-500 hover:to-red-700 disabled:from-magic-800 disabled:to-magic-700 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition shadow-ruby disabled:shadow-none"
           >
             {isLoading ? (

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { toast } from "sonner";
 import { useUSDCBalance, useUSDCAllowance, useApproveUSDC, useSupply, useWithdraw, useUserPosition } from "@/hooks/useHalo";
 
 export function SupplyForm() {
@@ -8,35 +9,134 @@ export function SupplyForm() {
   const [mode, setMode] = useState<"supply" | "withdraw">("supply");
   
   const { balance, refetch: refetchBalance } = useUSDCBalance();
-  const { allowance, refetch: refetchAllowance } = useUSDCAllowance();
-  const { approve, isPending: isApproving, isSuccess: approveSuccess } = useApproveUSDC();
-  const { supply, isPending: isSupplying, isSuccess: supplySuccess } = useSupply();
-  const { withdraw, isPending: isWithdrawing, isSuccess: withdrawSuccess } = useWithdraw();
-  const { refetch: refetchPosition } = useUserPosition();
+  const { allowanceRaw, refetch: refetchAllowance } = useUSDCAllowance();
+  const { approve, isPending: isApproving, isSuccess: approveSuccess, isError: approveError, error: appError, reset: resetApprove, hash: approveHash } = useApproveUSDC();
+  const { supply, isPending: isSupplying, isSuccess: supplySuccess, isError: supplyError, error: suppError, reset: resetSupply, hash: supplyHash } = useSupply();
+  const { withdraw, isPending: isWithdrawing, isSuccess: withdrawSuccess, isError: withdrawError, error: withError, reset: resetWithdraw, hash: withdrawHash } = useWithdraw();
+  const { position, refetch: refetchPosition } = useUserPosition();
 
-  const needsApproval = mode === "supply" && parseFloat(amount || "0") > parseFloat(allowance);
+  // Check if needs approval (using raw values for precision)
+  const needsApproval = mode === "supply" && allowanceRaw === BigInt(0);
   const isLoading = isApproving || isSupplying || isWithdrawing;
 
+  // Validation
+  const validation = useMemo(() => {
+    const amountNum = parseFloat(amount || "0");
+    const balanceNum = parseFloat(balance);
+    const collateralNum = parseFloat(position?.totalCollateral || "0");
+    
+    if (!amount || amount === "") {
+      return { valid: false, error: null };
+    }
+    
+    if (amountNum <= 0) {
+      return { valid: false, error: "Amount must be greater than 0" };
+    }
+    
+    if (mode === "supply" && amountNum > balanceNum) {
+      return { valid: false, error: `Insufficient balance. You have ${balanceNum.toLocaleString()} USDC` };
+    }
+    
+    if (mode === "withdraw" && amountNum > collateralNum) {
+      return { valid: false, error: `Cannot withdraw more than supplied (${collateralNum.toLocaleString()})` };
+    }
+    
+    return { valid: true, error: null };
+  }, [amount, balance, mode, position?.totalCollateral]);
+
+  // Handle success toasts
   useEffect(() => {
-    if (approveSuccess) refetchAllowance();
-    if (supplySuccess || withdrawSuccess) {
+    if (approveSuccess && approveHash) {
+      toast.success("✨ USDC Approved!", {
+        description: "You can now supply USDC to Halo Finance",
+        action: {
+          label: "View TX",
+          onClick: () => window.open(`https://basescan.org/tx/${approveHash}`, "_blank"),
+        },
+      });
+      refetchAllowance();
+      resetApprove();
+    }
+  }, [approveSuccess, approveHash, refetchAllowance, resetApprove]);
+
+  useEffect(() => {
+    if (supplySuccess && supplyHash) {
+      toast.success("✨ Supply Successful!", {
+        description: `You supplied ${amount} USDC`,
+        action: {
+          label: "View TX",
+          onClick: () => window.open(`https://basescan.org/tx/${supplyHash}`, "_blank"),
+        },
+      });
       refetchBalance();
       refetchPosition();
       setAmount("");
+      resetSupply();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [approveSuccess, supplySuccess, withdrawSuccess]);
+  }, [supplySuccess, supplyHash, amount, refetchBalance, refetchPosition, resetSupply]);
+
+  useEffect(() => {
+    if (withdrawSuccess && withdrawHash) {
+      toast.success("💰 Withdrawal Successful!", {
+        description: `You withdrew ${amount} USDC`,
+        action: {
+          label: "View TX",
+          onClick: () => window.open(`https://basescan.org/tx/${withdrawHash}`, "_blank"),
+        },
+      });
+      refetchBalance();
+      refetchPosition();
+      setAmount("");
+      resetWithdraw();
+    }
+  }, [withdrawSuccess, withdrawHash, amount, refetchBalance, refetchPosition, resetWithdraw]);
+
+  // Handle error toasts
+  useEffect(() => {
+    if (approveError && appError) {
+      toast.error("Approval Failed", {
+        description: appError.message?.slice(0, 100) || "Transaction was rejected",
+      });
+      resetApprove();
+    }
+  }, [approveError, appError, resetApprove]);
+
+  useEffect(() => {
+    if (supplyError && suppError) {
+      toast.error("Supply Failed", {
+        description: suppError.message?.slice(0, 100) || "Transaction was rejected",
+      });
+      resetSupply();
+    }
+  }, [supplyError, suppError, resetSupply]);
+
+  useEffect(() => {
+    if (withdrawError && withError) {
+      toast.error("Withdrawal Failed", {
+        description: withError.message?.slice(0, 100) || "Transaction was rejected",
+      });
+      resetWithdraw();
+    }
+  }, [withdrawError, withError, resetWithdraw]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || parseFloat(amount) <= 0) return;
+    if (!validation.valid) return;
     
     if (needsApproval) {
-      approve(amount);
+      approve();
     } else if (mode === "supply") {
       supply(amount);
     } else {
       withdraw(amount);
+    }
+  };
+
+  const handleMaxClick = () => {
+    if (mode === "supply") {
+      setAmount(balance);
+    } else {
+      setAmount(position?.totalCollateral || "0");
     }
   };
 
@@ -69,7 +169,12 @@ export function SupplyForm() {
         <div>
           <div className="flex justify-between text-sm mb-2">
             <label className="text-magic-400">Amount (USDC)</label>
-            <span className="text-magic-500">Balance: {parseFloat(balance).toLocaleString()} USDC</span>
+            <span className="text-magic-500">
+              {mode === "supply" 
+                ? `Balance: ${parseFloat(balance).toLocaleString()} USDC`
+                : `Supplied: ${parseFloat(position?.totalCollateral || "0").toLocaleString()} USDC`
+              }
+            </span>
           </div>
           <div className="relative">
             <input
@@ -79,21 +184,30 @@ export function SupplyForm() {
               placeholder="0.00"
               step="0.01"
               min="0"
-              className="w-full bg-treasure-navy/80 border border-magic-800/50 rounded-lg px-4 py-3 text-lg font-mono text-magic-100 placeholder-magic-600 focus:outline-none focus:border-treasure-gold/50 focus:shadow-gold transition"
+              className={`w-full bg-treasure-navy/80 border rounded-lg px-4 py-3 text-lg font-mono text-magic-100 placeholder-magic-600 focus:outline-none transition ${
+                validation.error 
+                  ? "border-treasure-ruby/50 focus:border-treasure-ruby" 
+                  : "border-magic-800/50 focus:border-treasure-gold/50 focus:shadow-gold"
+              }`}
             />
             <button
               type="button"
-              onClick={() => setAmount(balance)}
+              onClick={handleMaxClick}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-treasure-gold text-sm hover:text-amber-400 font-medium"
             >
               MAX
             </button>
           </div>
+          {validation.error && (
+            <p className="mt-2 text-sm text-treasure-ruby flex items-center gap-1">
+              <span>⚠️</span> {validation.error}
+            </p>
+          )}
         </div>
 
         <button
           type="submit"
-          disabled={isLoading || !amount || parseFloat(amount) <= 0}
+          disabled={isLoading || !validation.valid}
           className="w-full bg-gradient-to-r from-treasure-gold to-amber-500 hover:from-amber-400 hover:to-yellow-400 disabled:from-magic-800 disabled:to-magic-700 disabled:cursor-not-allowed text-treasure-navy font-semibold py-3 px-4 rounded-lg transition shadow-gold disabled:shadow-none"
         >
           {isLoading ? (

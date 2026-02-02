@@ -1,11 +1,37 @@
 // Halo Finance Contract on Base
 export const HALO_CONTRACT = "0x9b98511c7fb7d9a0541dfBc0b3d8Ef4CC25341ad" as const;
 
-// Common token addresses on Base
+// Common token addresses on Base mainnet
 export const USDC_BASE = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as const;
+export const WETH_BASE = "0x4200000000000000000000000000000000000006" as const;
+export const DAI_BASE = "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb" as const;
 
-// ERC-8004 Identity Registry (Base Sepolia testnet for now)
-export const ERC8004_REGISTRY = "0xA1207F07a92c8De293485113b917981D18e0dc38" as const;
+// ERC-8004 Identity Registry
+// NOTE: As of Feb 2026, there is no official ERC-8004 registry deployed on Base mainnet.
+// This is a placeholder address. For production, deploy your own ERC-8004 registry
+// or update this once an official registry is available.
+// See: https://eips.ethereum.org/EIPS/eip-8004 (Agent Identity Standard - Draft)
+export const ERC8004_REGISTRY = "0x0000000000000000000000000000000000000000" as const;
+
+// Supported collateral assets
+export const SUPPORTED_COLLATERAL = [
+  {
+    symbol: "WETH",
+    name: "Wrapped Ether",
+    address: WETH_BASE,
+    decimals: 18,
+    ltv: 80, // 80% LTV
+    liquidationThreshold: 85,
+  },
+  {
+    symbol: "USDC",
+    name: "USD Coin",
+    address: USDC_BASE,
+    decimals: 6,
+    ltv: 85,
+    liquidationThreshold: 90,
+  },
+] as const;
 
 // Halo Finance ABI - Core lending functions
 export const HALO_ABI = [
@@ -76,6 +102,41 @@ export const HALO_ABI = [
     ],
     stateMutability: "view",
   },
+  // Set user use reserve as collateral
+  {
+    name: "setUserUseReserveAsCollateral",
+    type: "function",
+    inputs: [
+      { name: "asset", type: "address" },
+      { name: "useAsCollateral", type: "bool" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  // Get reserve data (for APY/rates)
+  {
+    name: "getReserveData",
+    type: "function",
+    inputs: [{ name: "asset", type: "address" }],
+    outputs: [
+      { name: "configuration", type: "uint256" },
+      { name: "liquidityIndex", type: "uint128" },
+      { name: "currentLiquidityRate", type: "uint128" },
+      { name: "variableBorrowIndex", type: "uint128" },
+      { name: "currentVariableBorrowRate", type: "uint128" },
+      { name: "currentStableBorrowRate", type: "uint128" },
+      { name: "lastUpdateTimestamp", type: "uint40" },
+      { name: "id", type: "uint16" },
+      { name: "aTokenAddress", type: "address" },
+      { name: "stableDebtTokenAddress", type: "address" },
+      { name: "variableDebtTokenAddress", type: "address" },
+      { name: "interestRateStrategyAddress", type: "address" },
+      { name: "accruedToTreasury", type: "uint128" },
+      { name: "unbacked", type: "uint128" },
+      { name: "isolationModeTotalDebt", type: "uint128" },
+    ],
+    stateMutability: "view",
+  },
 ] as const;
 
 // ERC-20 ABI for token approvals
@@ -112,6 +173,13 @@ export const ERC20_ABI = [
     type: "function",
     inputs: [],
     outputs: [{ name: "", type: "uint8" }],
+    stateMutability: "view",
+  },
+  {
+    name: "symbol",
+    type: "function",
+    inputs: [],
+    outputs: [{ name: "", type: "string" }],
     stateMutability: "view",
   },
 ] as const;
