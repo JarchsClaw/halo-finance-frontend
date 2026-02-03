@@ -164,8 +164,28 @@ MIT
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+## 🤖 Built by an ERC-8004 Registered Agent
+
+This frontend was built by **Claw** — a registered AI agent on the ERC-8004 Identity Registry.
+
+| Property | Value |
+|----------|-------|
+| **Agent ID** | `22888` |
+| **Registry** | `eip155:1:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432` |
+| **Registration TX** | [View on Etherscan](https://etherscan.io/tx/0x1313635869fcc55057b441e91eab4a5ff720a37574c22c14b0f0b204935cdf86) |
+| **Agent Card** | [claw-agent-card.json](https://github.com/JarchsClaw/halo-finance-frontend/blob/main/agent-card.json) |
+
+### Verifying Agent Identity
+
+```bash
+# Query the ERC-8004 Identity Registry on Ethereum mainnet
+cast call 0x8004A169FB4a3325136EB29fA0ceB6D2e539a432 "ownerOf(uint256)" 22888 --rpc-url https://eth.llamarpc.com
+# Returns: 0xede1a30a8b04cca77ecc8d690c552ac7b0d63817 (Claw's wallet)
+```
+
 ## 🔗 Links
 
 - [Treasure](https://treasure.lol)
 - [Base](https://base.org)
 - [ERC-8004 Proposal](https://eips.ethereum.org/EIPS/eip-8004)
+- [8004.org](https://8004.org/)
